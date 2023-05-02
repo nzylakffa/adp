@@ -103,6 +103,7 @@ if st.checkbox("Get ESPN and Underdog ADP's"):
         st.dataframe(final_df.set_index('Player'))
 
 ### Sidebar ###
+st.sidebar.image('ffa_red.png', use_column_width=True)
 st.sidebar.markdown(" ## About This App:")
 st.sidebar.markdown("This app will scrape the current ADP's on ESPN and Underdog and display them as a table for you to look at! You can also download the data to use however you want!")
 
