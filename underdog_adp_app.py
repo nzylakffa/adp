@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 import time
 import re
-import lxml
 
 st.header("Collect ESPN and Underdog ADP's")
 
