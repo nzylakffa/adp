@@ -67,6 +67,9 @@ if st.checkbox("Get ADP's"):
         best_values = st.multiselect("Best Values by Site",
                                     ["ESPN", "Yahoo"], ["ESPN", "Yahoo"])
         adp_df = adp_df[adp_df['Best ADP Site'].isin(best_values)]
+        worst_values = st.multiselect("Worst Values by Site",
+                                    ["ESPN", "Yahoo"], ["ESPN", "Yahoo"])
+        adp_df = adp_df[adp_df['Worst ADP Site'].isin(worst_values)]
         adp_df['Average ADP'] = round(adp_df['Average ADP'],2)
         st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}'}).apply(highlight_rows, axis=1))
     else:
