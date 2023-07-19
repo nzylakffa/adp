@@ -95,7 +95,7 @@ if st.checkbox("Get ADP's"):
         
 
 ### Sidebar ###
-# st.sidebar.image('ffa_red.png', use_column_width=True)
+st.sidebar.image('ffa_red.png', use_column_width=True)
 st.sidebar.markdown(" ## About This App:")
 st.sidebar.markdown("This app will scrape the current indusrty ADP's and display them in ways where you can evaluate who the best picks are on each site!")
 
