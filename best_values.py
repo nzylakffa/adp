@@ -23,6 +23,13 @@ def scrape_espn_adp():
     df_2 = df_2[["Player", "Pos", "Sleeper"]]
     # Replace None with 250
     df_2 = df_2.fillna(250)
+    # st.dataframe(df_2)
+    # Adjust names
+    df_2['Player'] = df_2['Player'].replace('Amon-Ra St.', "Amon-Ra St. Brown", regex=True)
+    
+    
+    
+    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
