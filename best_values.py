@@ -22,11 +22,6 @@ def scrape_espn_adp():
     df_2 = df_2[["Player", "Pos", "Sleeper"]]
     # Replace None with 250
     df_2 = df_2.fillna(250)
-    # Fix Names
-    
-    
-
-    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
@@ -57,6 +52,7 @@ def scrape_espn_adp():
     df['Team'] = df['Team'].replace('-', "FA", regex=True)
     # Merge
     df = df.merge(df_2, on = ['Player', 'Pos'])
+    df['Sleeper'] = pd.to_numeric(df['Sleeper'])
     # Create Average ADP Column
     df['Average ADP'] = (df['ESPN'] + df['Yahoo'] + df['NFL'] + df['Underdog'] + df['Sleeper'])/5
     # Sort by Average ADP
