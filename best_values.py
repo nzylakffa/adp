@@ -18,12 +18,12 @@ def scrape_espn_adp():
     df_2["Player"] = df_2["Player Team (Bye)"].str.split(" ").str[:2].str.join(" ")
     df_2 = df_2.rename(columns={'POS': 'Pos'})
     # Drop the numbers from Pos
-    df_2['Pos'] = df_2['Pos'].str.replace('\d+', '')
+    df_2['Pos'] = df_2['Pos'].str.rstrip('0123456789') # removed an additional trailing space
+    # df_2['Pos'] = df_2['Pos'].str.replace('\d+', '')
     df_2 = df_2[["Player", "Pos", "Sleeper"]]
     # Replace None with 250
     df_2 = df_2.fillna(250)
-    st.dataframe(df_2)
-    
+    st.dataframe(df_2)    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
