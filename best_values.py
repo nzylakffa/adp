@@ -23,7 +23,6 @@ def scrape_espn_adp():
     df_2 = df_2[["Player", "Pos", "Sleeper"]]
     # Replace None with 250
     df_2 = df_2.fillna(250)
-    st.dataframe(df_2)    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
@@ -52,7 +51,6 @@ def scrape_espn_adp():
     # Fill na team with FA
     df['Team'].fillna("FA", inplace=True)
     df['Team'] = df['Team'].replace('-', "FA", regex=True)
-    st.dataframe(df)
     # Merge
     df = df.merge(df_2, on = ['Player', 'Pos'])
     df['Sleeper'] = pd.to_numeric(df['Sleeper'])
@@ -60,7 +58,6 @@ def scrape_espn_adp():
     df['Average ADP'] = (df['ESPN'] + df['Yahoo'] + df['NFL'] + df['Underdog'] + df['Sleeper'])/5
     # Sort by Average ADP
     df.sort_values(by='Average ADP', inplace=True)
-    st.dataframe(df)
     # Best ADP
     df['Best ADP Site'] = np.where((df['ESPN'] >= df['Yahoo']) & (df['ESPN'] >= df['NFL']) & (df['ESPN'] >= df['Underdog']) & (df['ESPN'] >= df['Sleeper']), "ESPN",
                                   (np.where((df['Yahoo'] >= df['ESPN']) & (df['Yahoo'] >= df['NFL']) & (df['Yahoo'] >= df['Underdog']) & (df['Yahoo'] >= df['Sleeper']),'Yahoo',
