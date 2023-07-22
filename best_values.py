@@ -57,6 +57,7 @@ def scrape_espn_adp():
     df['Average ADP'] = (df['ESPN'] + df['Yahoo'] + df['NFL'] + df['Underdog'] + df['Sleeper'])/5
     # Sort by Average ADP
     df.sort_values(by='Average ADP', inplace=True)
+    st.dataframe(df)
     # Best ADP
     df['Best ADP Site'] = np.where((df['ESPN'] >= df['Yahoo']) & (df['ESPN'] >= df['NFL']) & (df['ESPN'] >= df['Underdog']) & (df['ESPN'] >= df['Sleeper']), "ESPN",
                                   (np.where((df['Yahoo'] >= df['ESPN']) & (df['Yahoo'] >= df['NFL']) & (df['Yahoo'] >= df['Underdog']) & (df['Yahoo'] >= df['Sleeper']),'Yahoo',
