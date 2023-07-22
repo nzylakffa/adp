@@ -22,6 +22,8 @@ def scrape_espn_adp():
     df_2 = df_2[["Player", "Pos", "Sleeper"]]
     # Replace None with 250
     df_2 = df_2.fillna(250)
+    st.dataframe(df_2)
+    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
@@ -50,6 +52,7 @@ def scrape_espn_adp():
     # Fill na team with FA
     df['Team'].fillna("FA", inplace=True)
     df['Team'] = df['Team'].replace('-', "FA", regex=True)
+    st.dataframe(df)
     # Merge
     df = df.merge(df_2, on = ['Player', 'Pos'])
     df['Sleeper'] = pd.to_numeric(df['Sleeper'])
