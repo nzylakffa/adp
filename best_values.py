@@ -72,6 +72,7 @@ def scrape_espn_adp():
                                            (np.where((df['NFL'] <= df['ESPN']) & (df['NFL'] <= df['Yahoo']) & (df['NFL'] <= df['Underdog']) & (df['NFL'] <= df['Sleeper']),'NFL',
                                                      (np.where((df['Sleeper'] <= df['ESPN']) & (df['Sleeper'] <= df['Yahoo']) & (df['Sleeper'] <= df['NFL']) & (df['Sleeper'] <= df['Underdog']),'Sleeper', 'Underdog')))))))
     
+
     # Reset Index
     df = df.reset_index(drop=True)
     return df
@@ -103,6 +104,9 @@ if st.checkbox("Get ADP's"):
         adp_df = adp_df[adp_df['Worst ADP Site'].isin(worst_values)]
         adp_df['Average ADP'] = round(adp_df['Average ADP'],2)
         adp_df['Sleeper'] = round(adp_df['Sleeper'],2)
+        # Rename Columns
+        adp_df = adp_df.rename(columns={'Best ADP Site': 'Best ADP',
+                            'Worst ADP Site': 'Worst ADP'})    
         st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}',
                                                                 'Sleeper':'{:.0f}'}).apply(highlight_rows, axis=1))
     else:
@@ -112,6 +116,8 @@ if st.checkbox("Get ADP's"):
         players = adp_df['Player']
         player = st.multiselect("Find Players", players)
         adp_df = adp_df[adp_df['Player'].isin(player)]
+        adp_df = adp_df.rename(columns={'Best ADP Site': 'Best ADP',
+                                        'Worst ADP Site': 'Worst ADP'})   
         st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}',
                                                                 'Sleeper': '{:.0f}'}).apply(highlight_rows, axis=1))
         
