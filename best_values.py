@@ -11,6 +11,22 @@ st.header("Collect ADP's")
 cm = sns.diverging_palette(145, 20, center="dark", as_cmap=True)
 
 def scrape_espn_adp():
+    url_2 = "https://www.fantasypros.com/nfl/adp/ppr-overall.php"
+    response_2 = requests.get(url_2)
+    tables = pd.read_html(response_2.content)
+    df_2 = tables[0]
+    df_2["Player"] = df_2["Player Team (Bye)"].str.split(" ").str[:2].str.join(" ")
+    df_2 = df_2.rename(columns={'POS': 'Pos'})
+    # Drop the numbers from Pos
+    df_2['Pos'] = df_2['Pos'].str.replace('\d+', '')
+    df_2 = df_2[["Player", "Pos", "Sleeper"]]
+    # Replace None with 250
+    df_2 = df_2.fillna(250)
+    # Fix Names
+    
+    
+
+    
     url = "https://www.4for4.com/adp"
     response = requests.get(url)
     tables = pd.read_html(response.content)
@@ -39,20 +55,26 @@ def scrape_espn_adp():
     # Fill na team with FA
     df['Team'].fillna("FA", inplace=True)
     df['Team'] = df['Team'].replace('-', "FA", regex=True)
+    # Merge
+    df = df.merge(df_2, on = ['Player', 'Pos'])
     # Create Average ADP Column
-    df['Average ADP'] = (df['ESPN'] + df['Yahoo'] + df['NFL'] + df['Underdog'])/4
+    df['Average ADP'] = (df['ESPN'] + df['Yahoo'] + df['NFL'] + df['Underdog'] + df['Sleeper'])/5
     # Sort by Average ADP
     df.sort_values(by='Average ADP', inplace=True)
     # Best ADP
-    df['Best ADP Site'] = np.where((df['ESPN'] >= df['Yahoo']) & (df['ESPN'] >= df['NFL']) & (df['ESPN'] >= df['Underdog']), "ESPN",
-                                  (np.where((df['Yahoo'] >= df['ESPN']) & (df['Yahoo'] >= df['NFL']) & (df['Yahoo'] >= df['Underdog']),'Yahoo',
-                                           (np.where((df['NFL'] >= df['ESPN']) & (df['NFL'] >= df['Yahoo']) & (df['NFL'] >= df['Underdog']),'NFL',
-                                                    'Underdog')))))
+    df['Best ADP Site'] = np.where((df['ESPN'] >= df['Yahoo']) & (df['ESPN'] >= df['NFL']) & (df['ESPN'] >= df['Underdog']) & (df['ESPN'] >= df['Sleeper']), "ESPN",
+                                  (np.where((df['Yahoo'] >= df['ESPN']) & (df['Yahoo'] >= df['NFL']) & (df['Yahoo'] >= df['Underdog']) & (df['Yahoo'] >= df['Sleeper']),'Yahoo',
+                                           (np.where((df['NFL'] >= df['ESPN']) & (df['NFL'] >= df['Yahoo']) & (df['NFL'] >= df['Underdog']) & (df['NFL'] >= df['Sleeper']),'NFL',
+                                                     (np.where((df['Sleeper'] >= df['ESPN']) & (df['Sleeper'] >= df['Yahoo']) & (df['Sleeper'] >= df['NFL']) & (df['Sleeper'] >= df['Underdog']),'Sleeper', 'Underdog')))))))
+    
+    
+    
     # Worst ADP
-    df['Worst ADP Site'] = np.where((df['ESPN'] <= df['Yahoo']) & (df['ESPN'] <= df['NFL']) & (df['ESPN'] <= df['Underdog']), "ESPN",
-                                  (np.where((df['Yahoo'] <= df['ESPN']) & (df['Yahoo'] <= df['NFL']) & (df['Yahoo'] <= df['Underdog']),'Yahoo',
-                                           (np.where((df['NFL'] <= df['ESPN']) & (df['NFL'] <= df['Yahoo']) & (df['NFL'] <= df['Underdog']),'NFL',
-                                                    'Underdog')))))
+    df['Worst ADP Site'] = np.where((df['ESPN'] <= df['Yahoo']) & (df['ESPN'] <= df['NFL']) & (df['ESPN'] <= df['Underdog']) & (df['ESPN'] <= df['Sleeper']), "ESPN",
+                                  (np.where((df['Yahoo'] <= df['ESPN']) & (df['Yahoo'] <= df['NFL']) & (df['Yahoo'] <= df['Underdog']) & (df['Yahoo'] <= df['Sleeper']),'Yahoo',
+                                           (np.where((df['NFL'] <= df['ESPN']) & (df['NFL'] <= df['Yahoo']) & (df['NFL'] <= df['Underdog']) & (df['NFL'] <= df['Sleeper']),'NFL',
+                                                     (np.where((df['Sleeper'] <= df['ESPN']) & (df['Sleeper'] <= df['Yahoo']) & (df['Sleeper'] <= df['NFL']) & (df['Sleeper'] <= df['Underdog']),'Sleeper', 'Underdog')))))))
+    
     # Reset Index
     df = df.reset_index(drop=True)
     return df
@@ -77,13 +99,15 @@ if st.checkbox("Get ADP's"):
                                   ["QB", "RB", "WR", "TE", "DST"], ["QB", "RB", "WR", "TE"])
         adp_df = adp_df[adp_df['Pos'].isin(filtered)]
         best_values = st.multiselect("Best Values by Site",
-                                    ["ESPN", "Yahoo", "NFL", "Underdog"], ["ESPN", "Yahoo", "NFL", "Underdog"])
+                                    ["ESPN", "Yahoo", "NFL", "Underdog", "Sleeper"], ["ESPN", "Yahoo", "NFL", "Underdog", "Sleeper"])
         adp_df = adp_df[adp_df['Best ADP Site'].isin(best_values)]
         worst_values = st.multiselect("Worst Values by Site",
-                                    ["ESPN", "Yahoo", "NFL", "Underdog"], ["ESPN", "Yahoo", "NFL", "Underdog"])
+                                    ["ESPN", "Yahoo", "NFL", "Underdog", "Sleeper"], ["ESPN", "Yahoo", "NFL", "Underdog", "Sleeper"])
         adp_df = adp_df[adp_df['Worst ADP Site'].isin(worst_values)]
         adp_df['Average ADP'] = round(adp_df['Average ADP'],2)
-        st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}'}).apply(highlight_rows, axis=1))
+        adp_df['Sleeper'] = round(adp_df['Sleeper'],2)
+        st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}',
+                                                                'Sleeper':'{:.0f}'}).apply(highlight_rows, axis=1))
     else:
         filtered = st.multiselect("Show Only Select Positions",
                                   ["QB", "RB", "WR", "TE", "DST"], ["QB", "RB", "WR", "TE"])
@@ -91,7 +115,8 @@ if st.checkbox("Get ADP's"):
         players = adp_df['Player']
         player = st.multiselect("Find Players", players)
         adp_df = adp_df[adp_df['Player'].isin(player)]
-        st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}'}).apply(highlight_rows, axis=1))
+        st.dataframe(adp_df.style.text_gradient(cmap=cm).format({'Average ADP':'{:.1f}',
+                                                                'Sleeper': '{:.0f}'}).apply(highlight_rows, axis=1))
         
 
 ### Sidebar ###
