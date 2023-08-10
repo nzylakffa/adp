@@ -26,6 +26,9 @@ def scrape_espn_adp():
     # st.dataframe(df_2)
     # Adjust names
     df_2['Player'] = df_2['Player'].replace('Amon-Ra St.', "Amon-Ra St. Brown", regex=True)
+    df_2['Player'] = df_2['Player'].replace('AJ Dillon', "A.J. Dillon", regex=True)
+    df_2['Player'] = df_2['Player'].replace('Michael Pittman', "Michael Pittman Jr.", regex=True)
+    df_2['Player'] = df_2['Player'].replace('DJ Moore', "D.J. Moore", regex=True)
     
     
     
@@ -82,6 +85,19 @@ def scrape_espn_adp():
 
     # Reset Index
     df = df.reset_index(drop=True)
+    
+    # Create Pos Rank
+    rank_df = df.groupby('Pos')['Average ADP'].rank(method = 'dense')
+    # Assign pos rank to df
+    df['Pos Rank'] = rank_df
+    # Remove decimals from pos rank
+    df['Pos Rank'] = df['Pos Rank'].astype(int)
+    # Combine position and pos rank
+    df['Final Pos Rank'] = df['Pos'].astype(str) + " " + df['Pos Rank'].astype(str)
+    # Order the columns how we want them
+    df = df[["Average ADP", "Player", "Team", "Pos", "Final Pos Rank", "ESPN", "Yahoo", "NFL", "Underdog", "Sleeper", "Best ADP Site", "Worst ADP Site"]]
+    # Rename Final Pos Rank
+    df = df.rename(columns={'Final Pos Rank': 'Pos Rank'})    
     return df
 
 def highlight_rows(row):
