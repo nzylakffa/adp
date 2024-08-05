@@ -29,9 +29,9 @@ def scrape_espn_adp():
     df_2['Player'] = df_2['Player'].replace('AJ Dillon', "A.J. Dillon", regex=True)
     df_2['Player'] = df_2['Player'].replace('Michael Pittman', "Michael Pittman Jr.", regex=True)
     df_2['Player'] = df_2['Player'].replace('DJ Moore', "D.J. Moore", regex=True)
-    df_2['Player'] = df_2['Player'].replace("De'Von Achane", "Devon Achane", regex=True)
-    
-    
+    df_2['Player'] = df_2['Player'].replace("Marvin Harrison", "Marvin Harrison Jr.", regex=True)
+    df_2['Player'] = df_2['Player'].replace("Brian Thomas", "Brian Thomas Jr.", regex=True)
+    df_2['Player'] = df_2['Player'].replace("DeMario Douglas", "Demario Douglas", regex=True)
     
     
     url = "https://www.4for4.com/adp"
